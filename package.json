@@ -1,0 +1,49 @@
+{
+  "name": "contractcoach",
+  "version": "1.0.0",
+  "description": "AI-powered contract analysis platform for startups, freelancers, and small businesses",
+  "main": "index.html",
+  "scripts": {
+    "dev": "live-server --port=3000 --open=/",
+    "build": "echo 'No build step required for static site'",
+    "deploy": "gh-pages -d .",
+    "lint": "eslint script.js",
+    "format": "prettier --write *.html *.css *.js",
+    "optimize": "npm run optimize:css && npm run optimize:js",
+    "optimize:css": "csso styles.css --output styles.min.css",
+    "optimize:js": "terser script.js --compress --mangle --output script.min.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/yourusername/contractcoach.git"
+  },
+  "keywords": [
+    "contract-analysis",
+    "legal-tech",
+    "ai",
+    "startup-tools",
+    "negotiation",
+    "legal-assistant",
+    "document-review",
+    "risk-analysis"
+  ],
+  "author": "Your Name <your.email@example.com>",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/yourusername/contractcoach/issues"
+  },
+  "homepage": "https://yourusername.github.io/contractcoach/",
+  "devDependencies": {
+    "live-server": "^1.2.2",
+    "gh-pages": "^6.0.0",
+    "eslint": "^8.50.0",
+    "prettier": "^3.0.3",
+    "csso-cli": "^4.0.2",
+    "terser": "^5.19.4"
+  },
+  "browserslist": [
+    "> 1%",
+    "last 2 versions",
+    "not dead"
+  ]
+}
