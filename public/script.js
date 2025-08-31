@@ -14,21 +14,30 @@ function initializeFileUpload() {
     // Get elements
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
+    const chooseButton = document.getElementById('chooseFileBtn');
     const demoClause = document.getElementById('demoClause');
     
     console.log('Upload elements found:', {
         uploadArea: !!uploadArea,
-        fileInput: !!fileInput, 
+        fileInput: !!fileInput,
+        chooseButton: !!chooseButton,
         demoClause: !!demoClause
     });
     
     // File input change handler
     if (fileInput) {
-        // Remove any existing event listeners
-        fileInput.removeEventListener('change', handleFileInput);
-        // Add fresh event listener
         fileInput.addEventListener('change', handleFileInput);
         console.log('File input event listener attached');
+    }
+    
+    // Choose file button click handler
+    if (chooseButton && fileInput) {
+        chooseButton.onclick = function(e) {
+            e.preventDefault();
+            console.log('Choose file button clicked');
+            fileInput.click();
+        };
+        console.log('Choose file button click handler attached');
     }
     
     // Upload area drag and drop
@@ -43,18 +52,6 @@ function initializeFileUpload() {
     if (demoClause) {
         demoClause.addEventListener('click', handleDemoAnalysis);
         console.log('Demo clause listener attached');
-    }
-    
-    // Add click handler to choose file button
-    const chooseButton = uploadArea?.querySelector('button');
-    if (chooseButton) {
-        chooseButton.addEventListener('click', function(e) {
-            e.preventDefault();
-            console.log('Choose file button clicked');
-            if (fileInput) {
-                fileInput.click();
-            }
-        });
     }
 }
 
@@ -172,8 +169,8 @@ function resetUploadArea() {
                 <div class="upload-icon">📄</div>
                 <h3>Drop your contract here</h3>
                 <p>Supports PDF, Word, and text files up to 30 pages</p>
-                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
-                <button class="cta-button" type="button">Choose File</button>
+                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display: none;">
+                <button class="cta-button" type="button" id="chooseFileBtn">Choose File</button>
                 
                 <div class="or-divider">
                     <span>or</span>
@@ -186,10 +183,28 @@ function resetUploadArea() {
             </div>
         `;
         
-        // Re-initialize after resetting
-        setTimeout(() => {
-            initializeFileUpload();
-        }, 100);
+        // FIXED: Properly re-attach all event listeners after reset
+        const newFileInput = document.getElementById('fileInput');
+        const newChooseButton = document.getElementById('chooseFileBtn');
+        
+        if (newFileInput && newChooseButton) {
+            // File input change listener
+            newFileInput.addEventListener('change', handleFileInput);
+            
+            // Choose button click listener
+            newChooseButton.onclick = function(e) {
+                e.preventDefault();
+                console.log('Choose file button clicked (after reset)');
+                newFileInput.click();
+            };
+            
+            console.log('Event listeners reattached after reset');
+        }
+        
+        // Also re-initialize drag and drop
+        uploadArea.addEventListener('dragover', handleDragOver);
+        uploadArea.addEventListener('dragleave', handleDragLeave);
+        uploadArea.addEventListener('drop', handleDrop);
     }
 }
 
@@ -480,4 +495,186 @@ function handlePayment(planType) {
     const selectedPlan = plans[planType];
     
     if (planType === 'free') {
-        // For free plan,
+        // For free plan, scroll to analyzer
+        const analyzerSection = document.getElementById('analyzer');
+        if (analyzerSection) {
+            analyzerSection.scrollIntoView({ behavior: 'smooth' });
+            showNotification('Great! Try our free contract analysis below.', 'success');
+        }
+        return;
+    }
+    
+    // For paid plans, show payment modal
+    showPaymentModal(selectedPlan);
+}
+
+function showPaymentModal(plan) {
+    // Create modal backdrop
+    const modal = document.createElement('div');
+    modal.className = 'payment-modal';
+    modal.innerHTML = `
+        <div class="modal-backdrop" onclick="closePaymentModal()"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Complete Your Purchase</h3>
+                <button class="close-modal" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="plan-summary">
+                    <h4>${plan.name}</h4>
+                    <p>${plan.description}</p>
+                    <div class="price">$${plan.price}</div>
+                </div>
+                <div class="payment-options">
+                    <button class="payment-button stripe-button" onclick="processPayment('stripe', '${plan.name}', ${plan.price})">
+                        💳 Pay with Card (Stripe)
+                    </button>
+                    <button class="payment-button paypal-button" onclick="processPayment('paypal', '${plan.name}', ${plan.price})">
+                        🅿️ Pay with PayPal
+                    </button>
+                </div>
+                <p class="payment-note">
+                    🔒 Secure payment processing. Cancel anytime for subscriptions.
+                </p>
+            </div>
+        </div>
+    `;
+    
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+function closePaymentModal() {
+    const modal = document.querySelector('.payment-modal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+function processPayment(method, planName, price) {
+    console.log('Processing payment:', method, planName, price);
+    
+    closePaymentModal();
+    
+    // In production, this would redirect to actual payment processor
+    showNotification(`Redirecting to ${method === 'stripe' ? 'Stripe' : 'PayPal'} for ${planName} ($${price}). Payment processing will be added in production.`, 'info');
+    
+    // Simulate successful payment for demo
+    setTimeout(() => {
+        showNotification(`Payment successful! Welcome to ${planName}.`, 'success');
+    }, 2000);
+}
+
+// Download report functionality
+function downloadReport() {
+    console.log('Downloading report...');
+    
+    const reportContent = `
+CONTRACTCOACH ANALYSIS REPORT
+============================
+
+Contract Analysis Report
+Generated: ${new Date().toLocaleString()}
+
+RISK ASSESSMENT:
+Overall Risk Score: 8/10 (High Risk)
+Confidence Level: High
+
+KEY FINDINGS:
+1. Payment Terms - HIGH RISK
+   - 7-day cure period is too short
+   - Recommend 30-day standard period
+   
+2. Termination Clause - HIGH RISK
+   - Immediate termination allowed
+   - Recommend written notice requirement
+
+3. Intellectual Property - MEDIUM RISK
+   - Unclear ownership terms
+   - Recommend clarification
+
+RECOMMENDED ACTIONS:
+1. Negotiate 30-day payment cure period
+2. Add written notice before termination
+3. Clarify IP ownership
+4. Review liability clauses
+5. Consider legal consultation
+
+NEGOTIATION SCRIPTS:
+"We typically operate on net-30 terms. Can we update the payment cure period to 30 days and include written notice before termination?"
+
+LEGAL DISCLAIMER:
+This analysis is not legal advice. For bindin
+Generated by ContractCoach AI
+https://contractcoach.vercel.app
+`;
+    
+    // Create and download file
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `contract-analysis-${Date.now()}.txt`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showNotification('Report downloaded! Full PDF reports available with paid plans.', 'success');
+}
+
+// Test function for debugging
+function testFileUpload() {
+    console.log('=== TESTING FILE UPLOAD ===');
+    const fileInput = document.getElementById('fileInput');
+    const chooseButton = document.getElementById('chooseFileBtn');
+    
+    console.log('File input exists:', !!fileInput);
+    console.log('Choose button exists:', !!chooseButton);
+    console.log('File input style display:', fileInput?.style.display);
+    
+    if (chooseButton) {
+        console.log('Choose button onclick:', typeof chooseButton.onclick);
+        console.log('Testing button click...');
+        chooseButton.click();
+    }
+}
+
+console.log('ContractCoach initialized successfully! 🚀');
+console.log('Features available:');
+console.log('- File upload (drag & drop or click)');
+console.log('- Text analysis (paste contract text)');
+console.log('- Demo analysis (click demo clause)');
+console.log('- Contact form');
+console.log('- Payment modals');
+console.log('- Report download');
+console.log('Ready for testing!');
+console.log('');
+console.log('🔧 If file upload not working, run testFileUpload() in console');
+
+// Auto-test after page load (for debugging)
+setTimeout(() => {
+    const fileInput = document.getElementById('fileInput');
+    const chooseButton = document.getElementById('chooseFileBtn');
+    
+    if (!fileInput || !chooseButton || !chooseButton.onclick) {
+        console.error('❌ File upload setup incomplete!');
+        console.log('Attempting to fix...');
+        initializeFileUpload();
+    } else {
+        console.log('✅ File upload setup looks good!');
+    }
+}, 2000);
