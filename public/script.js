@@ -15,6 +15,9 @@ document.addEventListener('DOMContentLoaded', function() {
     uploadArea.addEventListener('dragleave', handleDragLeave);
     uploadArea.addEventListener('drop', handleDrop);
     fileInput.addEventListener('change', handleFileInput);
+    
+    // Debug: Log when file input is ready
+    console.log('File input initialized:', fileInput);
     demoClause.addEventListener('click', handleDemoAnalysis);
 
     // Smooth scrolling for navigation links
@@ -50,11 +53,14 @@ function handleDrop(e) {
 }
 
 function handleFileInput(e) {
+    console.log('File input changed:', e.target.files);
     if (e.target.files.length > 0) {
         const file = e.target.files[0];
+        console.log('File selected:', file.name, file.size, file.type);
         if (isValidFileType(file)) {
             handleFileUpload(file);
         } else {
+            console.error('Invalid file type:', file.type);
             showError('Please upload a valid file type (PDF, DOC, DOCX, or TXT)');
         }
     }
@@ -66,13 +72,27 @@ function handleDemoAnalysis() {
 }
 
 function isValidFileType(file) {
+    console.log('Checking file type:', file.type, file.name);
     const validTypes = [
         'application/pdf',
         'application/msword',
         'application/vnd.openxmlformats-officedocument.wordprocessingml.document',
         'text/plain'
     ];
-    return validTypes.includes(file.type) || file.name.toLowerCase().endsWith('.txt');
+    
+    // Check MIME type first
+    const isValidMime = validTypes.includes(file.type);
+    
+    // Check file extension as fallback
+    const fileName = file.name.toLowerCase();
+    const isValidExtension = fileName.endsWith('.pdf') || 
+                            fileName.endsWith('.doc') || 
+                            fileName.endsWith('.docx') || 
+                            fileName.endsWith('.txt');
+    
+    console.log('MIME valid:', isValidMime, 'Extension valid:', isValidExtension);
+    
+    return isValidMime || isValidExtension;
 }
 
 function handleFileUpload(file) {
@@ -596,34 +616,4 @@ function removeMobileMenu() {
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
     notification.className = `notification notification-${type}`;
-    notification.style.cssText = `
-        position: fixed;
-        top: 100px;
-        right: 20px;
-        padding: 1rem;
-        border-radius: 8px;
-        color: white;
-        font-weight: bold;
-        z-index: 1001;
-        opacity: 0;
-        transform: translateX(100%);
-        transition: all 0.3s ease;
-    `;
-    
-    // Set background color based on type
-    switch(type) {
-        case 'success':
-            notification.style.background = '#27ae60';
-            break;
-        case 'error':
-            notification.style.background = '#e74c3c';
-            break;
-        case 'warning':
-            notification.style.background = '#f39c12';
-            break;
-        default:
-            notification.style.background = '#667eea';
-    }
-    
-    notification.textContent = message;
-    document.body.appendChild(notification
+    notification.style.cssText 
