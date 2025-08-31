@@ -248,12 +248,229 @@ function initPricingInteractions() {
     });
 }
 
-function handlePricingSelection(planName) {
-    console.log('Selected plan:', planName);
+// Payment handling
+function handlePayment(planType) {
+    console.log('Payment initiated for:', planType);
     
-    // In a real application, this would redirect to payment processing
-    // For demo purposes, show an alert
-    alert(`Selected: ${planName}\n\nIn the full version, this would redirect to secure payment processing.`);
+    // Track the event
+    trackEvent('payment_initiated', { plan: planType });
+    
+    const plans = {
+        'free': {
+            name: 'Free Trial',
+            price: 0,
+            description: '1 free contract analysis'
+        },
+        'payperuse': {
+            name: 'Pay Per Use',
+            price: 9,
+            description: 'Single contract analysis'
+        },
+        'business': {
+            name: 'Business Plan',
+            price: 49,
+            description: 'Up to 20 contracts/month'
+        },
+        'expert-review': {
+            name: 'Expert Review',
+            price: 99,
+            description: 'Human lawyer review'
+        }
+    };
+    
+    const selectedPlan = plans[planType];
+    
+    if (planType === 'free') {
+        // For free plan, just start the analyzer
+        document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
+        showNotification('Great! Try our free contract analysis below.', 'success');
+        return;
+    }
+    
+    // For paid plans, show payment modal or redirect
+    showPaymentModal(selectedPlan);
+}
+
+function showPaymentModal(plan) {
+    // Create modal
+    const modal = document.createElement('div');
+    modal.className = 'payment-modal';
+    modal.innerHTML = `
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Complete Your Purchase</h3>
+                <button class="close-modal" onclick="closePaymentModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div class="plan-summary">
+                    <h4>${plan.name}</h4>
+                    <p>${plan.description}</p>
+                    <div class="price">$${plan.price}</div>
+                </div>
+                <div class="payment-options">
+                    <button class="payment-button stripe-button" onclick="processStripePayment('${plan.name}', ${plan.price})">
+                        💳 Pay with Card (Stripe)
+                    </button>
+                    <button class="payment-button paypal-button" onclick="processPayPalPayment('${plan.name}', ${plan.price})">
+                        🅿️ Pay with PayPal
+                    </button>
+                </div>
+                <p class="payment-note">
+                    🔒 Secure payment processing. Cancel anytime for subscriptions.
+                </p>
+            </div>
+        </div>
+        <div class="modal-backdrop" onclick="closePaymentModal()"></div>
+    `;
+    
+    // Add modal styles
+    modal.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        z-index: 2000;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+function closePaymentModal() {
+    const modal = document.querySelector('.payment-modal');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
+    }
+}
+
+function processStripePayment(planName, price) {
+    // In a real implementation, this would redirect to Stripe Checkout
+    console.log('Processing Stripe payment:', planName, price);
+    
+    // For demo purposes, show success message
+    closePaymentModal();
+    showNotification(`Payment processing initiated for ${planName} ($${price}). In production, this would redirect to Stripe Checkout.`, 'info');
+    
+    // In production, you would redirect to Stripe:
+    // window.location.href = `https://checkout.stripe.com/pay/...`;
+}
+
+function processPayPalPayment(planName, price) {
+    // In a real implementation, this would redirect to PayPal
+    console.log('Processing PayPal payment:', planName, price);
+    
+    // For demo purposes, show success message
+    closePaymentModal();
+    showNotification(`Payment processing initiated for ${planName} ($${price}). In production, this would redirect to PayPal.`, 'info');
+    
+    // In production, you would redirect to PayPal:
+    // window.location.href = `https://www.paypal.com/cgi-bin/webscr?...`;
+}
+
+// Download report functionality
+function downloadReport() {
+    console.log('Downloading contract analysis report...');
+    
+    // Track the event
+    trackEvent('report_download');
+    
+    // In a real implementation, this would generate and download a PDF
+    showNotification('Report download will be available after implementing PDF generation.', 'info');
+    
+    // For demo purposes, create a simple text download
+    const reportContent = `
+CONTRACTCOACH ANALYSIS REPORT
+============================
+
+Contract: Sample Termination Clause
+Risk Score: 8/10 (High Risk)
+Date: ${new Date().toLocaleDateString()}
+
+ISSUES FOUND:
+1. Payment cure period too short (7 days vs standard 30 days)
+2. Immediate termination clause gives excessive leverage
+
+RECOMMENDATIONS:
+1. Negotiate 30-day cure period
+2. Add written notice requirement
+3. Include dispute resolution process
+
+NEGOTIATION SCRIPT:
+"We typically operate on net-30 terms. Can we update the payment cure period to 30 days and include written notice before termination?"
+
+LEGAL DISCLAIMER:
+This analysis is not legal advice. Consult a licensed attorney for binding legal advice.
+
+Generated by ContractCoach AI
+`;
+    
+    // Create and trigger download
+    const blob = new Blob([reportContent], { type: 'text/plain' });
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = 'contract-analysis-report.txt';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
+    
+    showNotification('Sample report downloaded! Full PDF reports available with paid plans.', 'success');
+}
+
+// Contact form handling
+function initContactForm() {
+    const contactForm = document.getElementById('contactForm');
+    if (contactForm) {
+        contactForm.addEventListener('submit', handleContactSubmit);
+    }
+}
+
+function handleContactSubmit(e) {
+    e.preventDefault();
+    
+    const formData = new FormData(e.target);
+    const data = {
+        name: formData.get('name'),
+        email: formData.get('email'),
+        subject: formData.get('subject'),
+        message: formData.get('message')
+    };
+    
+    console.log('Contact form submitted:', data);
+    
+    // Track the event
+    trackEvent('contact_form_submit', { subject: data.subject });
+    
+    // In a real implementation, this would send to your backend
+    // For demo purposes, show success message
+    showNotification('Thank you for your message! We\'ll get back to you within 24 hours.', 'success');
+    
+    // Clear form
+    e.target.reset();
+    
+    // In production, you would send to your backend:
+    /*
+    fetch('/api/contact', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(data)
+    }).then(response => {
+        if (response.ok) {
+            showNotification('Message sent successfully!', 'success');
+            e.target.reset();
+        } else {
+            showNotification('Failed to send message. Please try again.', 'error');
+        }
+    }).catch(error => {
+        showNotification('Network error. Please try again.', 'error');
+    });
+    */
 }
 
 // Initialize additional features when DOM is ready
@@ -261,6 +478,7 @@ document.addEventListener('DOMContentLoaded', function() {
     initPricingInteractions();
     initScrollAnimations();
     initMobileMenu();
+    initContactForm();
 });
 
 function initScrollAnimations() {
@@ -408,29 +626,4 @@ function showNotification(message, type = 'info') {
     }
     
     notification.textContent = message;
-    document.body.appendChild(notification);
-    
-    // Animate in
-    setTimeout(() => {
-        notification.style.opacity = '1';
-        notification.style.transform = 'translateX(0)';
-    }, 100);
-    
-    // Remove after 5 seconds
-    setTimeout(() => {
-        notification.style.opacity = '0';
-        notification.style.transform = 'translateX(100%)';
-        setTimeout(() => {
-            if (notification.parentNode) {
-                notification.parentNode.removeChild(notification);
-            }
-        }, 300);
-    }, 5000);
-}
-
-// Analytics tracking (placeholder for real analytics)
-function trackEvent(eventName, properties = {}) {
-    console.log('Analytics Event:', eventName, properties);
-    // In production, this would send to your analytics service
-    // Example: gtag('event', eventName, properties);
-}
+    document.body.appendChild(notification
