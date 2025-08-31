@@ -91,7 +91,7 @@ async function handleFileUpload(file) {
     formData.append('file', file);
 
     try {
-        const response = await fetch('https://contractcoach-backend.onrender.com', {
+        const response = await fetch('https://contractcoach-backend.onrender.com/analyze_contract/', {
             method: 'POST',
             body: formData
         });
