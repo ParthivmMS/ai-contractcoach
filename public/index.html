@@ -81,7 +81,16 @@
                         <h3>Drop your contract here</h3>
                         <p>Supports PDF, Word, and text files up to 30 pages</p>
                         <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt">
-                        <button class="cta-button" onclick="document.getElementById('fileInput').click()">Choose File</button>
+                        <button class="cta-button" type="button">Choose File</button>
+                        
+                        <div class="or-divider">
+                            <span>or</span>
+                        </div>
+                        
+                        <div class="paste-area">
+                            <textarea id="contractText" placeholder="Paste your contract text here..." rows="6"></textarea>
+                            <button class="cta-button" onclick="analyzeText()">Analyze Pasted Text</button>
+                        </div>
                     </div>
                 </div>
 
