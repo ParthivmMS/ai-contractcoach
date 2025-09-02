@@ -4,13 +4,136 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ContractCoach - AI Contract Analysis Platform</title>
-    <link rel="stylesheet" href="styles.css">
-    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>">
+
+    <!-- Professional font -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+
+    <!-- Minimal, self-contained improvements to styles (keeps all IDs & structure intact) -->
+    <style>
+        :root{
+            --bg-1: #f6f8fb;
+            --card-bg: #ffffff;
+            --accent: #1457b8; /* authoritative blue */
+            --accent-2: #2b6cb0;
+            --muted: #6b7280;
+            --success: #16a34a;
+            --warning: #f59e0b;
+            --danger: #dc2626;
+            --radius: 12px;
+            --container-width: 1180px;
+        }
+        *{box-sizing:border-box}
+        html,body{height:100%;}
+        body{
+            font-family: 'Inter', system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial;
+            margin:0;
+            color:#0f172a;
+            background: linear-gradient(180deg, #eef2ff 0%, var(--bg-1) 100%);
+            -webkit-font-smoothing:antialiased;
+            -moz-osx-font-smoothing:grayscale;
+            line-height:1.5;
+        }
+        .container{max-width:var(--container-width);margin:0 auto;padding:0 20px;}
+
+        header{position:sticky;top:0;background:rgba(255,255,255,0.9);backdrop-filter: blur(6px);box-shadow:0 4px 18px rgba(8,12,20,0.06);z-index:1000}
+        nav{display:flex;align-items:center;justify-content:space-between;padding:18px 0}
+        .logo{font-weight:700;color:var(--accent);font-size:1.25rem;display:flex;align-items:center;gap:10px}
+        .nav-links{display:flex;gap:20px;list-style:none;margin:0;padding:0;align-items:center}
+        .nav-links a{color:var(--muted);text-decoration:none;font-weight:600}
+        .nav-links a:hover{color:var(--accent)}
+
+        .cta-button{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:#fff;padding:10px 18px;border-radius:999px;border:none;cursor:pointer;font-weight:700;box-shadow:0 6px 18px rgba(43,108,176,0.15);transition:transform .16s ease,box-shadow .16s ease}
+        .cta-button:hover{transform:translateY(-3px);box-shadow:0 12px 28px rgba(43,108,176,0.18)}
+        .cta-button.secondary{background:linear-gradient(90deg,#6b7280,#4b5563)}
+        .cta-button.full-width{width:100%;}
+
+        main{padding:110px 0 60px}
+        .hero{padding:60px 0;text-align:center}
+        .hero h1{font-size:2.6rem;margin-bottom:10px;line-height:1.05;color:var(--accent)}
+        .hero p{color:var(--muted);font-size:1.125rem;margin-bottom:20px}
+
+        .features, .analyzer-section, .pricing, .contact{background:var(--card-bg);padding:32px;border-radius:var(--radius);box-shadow:0 10px 30px rgba(8,12,20,0.04);margin:28px 0}
+        .features h2, .analyzer-section h2, .pricing h2, .contact h2{text-align:center;margin-bottom:6px}
+        .subtitle{text-align:center;color:var(--muted);margin-bottom:18px}
+
+        .feature-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:18px;margin-top:18px}
+        .feature-card{background:linear-gradient(180deg,#fff,#fbfdff);padding:18px;border-radius:12px;display:flex;gap:12px;align-items:flex-start;box-shadow:0 6px 18px rgba(16,24,40,0.03)}
+        .feature-icon{font-size:1.6rem}
+        .feature-card h3{margin:0;font-size:1.05rem}
+        .feature-card p{margin:6px 0 0;color:var(--muted);font-size:.95rem}
+
+        /* Analyzer area */
+        .upload-area{border:2px dashed rgba(20,87,184,0.15);border-radius:12px;padding:28px;text-align:center;background:linear-gradient(180deg, rgba(255,255,255,0.6), rgba(246,248,255,0.6));cursor:pointer;transition:transform .12s ease,box-shadow .12s ease}
+        .upload-area:hover{transform:translateY(-3px);box-shadow:0 12px 30px rgba(16,24,40,0.06)}
+        #uploadContent{display:flex;flex-direction:column;gap:14px;align-items:center}
+        .upload-icon{font-size:2.2rem}
+        #chooseFileBtn{margin-top:6px}
+
+        .or-divider{display:flex;align-items:center;margin:6px 0;width:100%;max-width:760px}
+        .or-divider span{margin:auto;color:var(--muted);font-weight:600}
+
+        .paste-area{width:100%;max-width:760px;background:#f8fafc;border-radius:10px;padding:12px;display:flex;gap:8px;align-items:flex-start}
+        .paste-area textarea{flex:1;border:1px solid #e6eefc;border-radius:8px;padding:10px;font-family:inherit;font-size:0.95rem;min-height:120px;resize:vertical}
+        .paste-area button{height:44px}
+
+        .demo-section{text-align:center;margin-top:18px}
+        .demo-contract{display:inline-block;background:#f1f5f9;padding:12px;border-radius:10px;border:1px solid #e6eefc;cursor:pointer;max-width:760px}
+
+        .loading-animation{display:none;text-align:center;padding:18px}
+        .spinner{width:36px;height:36px;border-radius:50%;border:4px solid #e6eefc;border-top-color:var(--accent);animation:spin 1s linear infinite;margin:0 auto 8px}
+        @keyframes spin{to{transform:rotate(360deg)}}
+
+        .analysis-results{display:none;margin-top:18px;padding:18px;background:#fff;border-radius:10px}
+        .risk-score{display:flex;align-items:center;gap:14px;margin-bottom:12px}
+        .score-circle{width:64px;height:64px;border-radius:999px;color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.25rem}
+        .risk-high{background:var(--danger)}
+        .risk-medium{background:var(--warning)}
+        .risk-low{background:var(--success)}
+
+        .progress-bar{width:100%;height:8px;background:#eef2ff;border-radius:999px;overflow:hidden}
+        .progress-fill{height:100%;width:0%;background:linear-gradient(90deg,var(--accent),var(--accent-2));transition:width 1.6s ease}
+
+        .clause-item{padding:12px;border-radius:10px;background:#fbfdff;border-left:4px solid rgba(20,87,184,0.12);margin:10px 0}
+        .urgent{color:var(--danger);font-weight:700}
+
+        .action-list{margin-left:1.1rem}
+        .legal-disclaimer{background:#fff7ed;padding:12px;border-radius:8px;margin-top:12px}
+
+        .action-buttons{display:flex;gap:12px;flex-wrap:wrap}
+
+        /* Pricing */
+        .pricing-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:18px}
+        .pricing-card{padding:18px;border-radius:12px;border:1px solid #eef2ff}
+        .pricing-card.featured{border:2px solid var(--accent);box-shadow:0 12px 30px rgba(20,87,184,0.06)}
+        .popular-badge{background:var(--accent);color:#fff;padding:6px 10px;border-radius:8px;display:inline-block;margin-bottom:8px}
+        .price{font-size:1.6rem;color:var(--accent);margin:8px 0}
+        .feature-list{list-style:none;padding:0;margin:12px 0;color:var(--muted)}
+
+        /* Contact */
+        .contact-grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+        .contact-item a{color:var(--accent);text-decoration:none}
+
+        footer{padding:24px 0;text-align:center;color:var(--muted);font-size:0.9rem}
+
+        /* Responsive tweaks */
+        @media (max-width:900px){
+            .nav-links{display:none}
+            .hero h1{font-size:2rem}
+            .contact-grid{grid-template-columns:1fr}
+        }
+
+        @media (max-width:520px){
+            .feature-grid{grid-template-columns:1fr}
+            .paste-area{flex-direction:column}
+            .paste-area button{width:100%}
+        }
+
+    </style>
 </head>
 <body>
     <header>
         <nav class="container">
-            <div class="logo">⚖️ ContractCoach</div>
+            <div class="logo">⚖️ <span style="letter-spacing:0.4px">ContractCoach</span></div>
             <ul class="nav-links">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#analyzer">Try It</a></li>
@@ -34,37 +157,49 @@
             <div class="container">
                 <h2>Stop Getting Trapped by Bad Contracts</h2>
                 <p class="subtitle">For startups, freelancers, and small businesses who can't afford $500/hour lawyers</p>
-                
+
                 <div class="feature-grid">
                     <div class="feature-card">
                         <div class="feature-icon">🔍</div>
-                        <h3>Instant Risk Detection</h3>
-                        <p>AI scans your contract and flags risky clauses in plain English. No legal degree required.</p>
+                        <div>
+                            <h3>Instant Risk Detection</h3>
+                            <p>AI scans your contract and flags risky clauses in plain English. No legal degree required.</p>
+                        </div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">✏️</div>
-                        <h3>Smart Alternatives</h3>
-                        <p>Get market-standard clause alternatives that protect your interests better.</p>
+                        <div>
+                            <h3>Smart Alternatives</h3>
+                            <p>Get market-standard clause alternatives that protect your interests better.</p>
+                        </div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">💬</div>
-                        <h3>Negotiation Scripts</h3>
-                        <p>Know exactly what to say to improve contract terms. Friendly and firm options included.</p>
+                        <div>
+                            <h3>Negotiation Scripts</h3>
+                            <p>Know exactly what to say to improve contract terms. Friendly and firm options included.</p>
+                        </div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">⚡</div>
-                        <h3>Priority Actions</h3>
-                        <p>Focus on what matters most. Get a ranked list of urgent, important, and optional changes.</p>
+                        <div>
+                            <h3>Priority Actions</h3>
+                            <p>Focus on what matters most. Get a ranked list of urgent, important, and optional changes.</p>
+                        </div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">📊</div>
-                        <h3>Risk Scoring</h3>
-                        <p>Overall contract risk score (1-10) so you know how safe it is to sign as-is.</p>
+                        <div>
+                            <h3>Risk Scoring</h3>
+                            <p>Overall contract risk score (1-10) so you know how safe it is to sign as-is.</p>
+                        </div>
                     </div>
                     <div class="feature-card">
                         <div class="feature-icon">⚖️</div>
-                        <h3>Expert-Backed</h3>
-                        <p>AI trained on thousands of contracts with input from practicing commercial lawyers.</p>
+                        <div>
+                            <h3>Expert-Backed</h3>
+                            <p>AI trained on thousands of contracts with input from practicing commercial lawyers.</p>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -74,7 +209,7 @@
             <div class="container">
                 <h2>Try ContractCoach Now</h2>
                 <p class="subtitle">Upload your contract or try our demo clause analysis</p>
-                
+
                 <div class="upload-area" id="uploadArea">
                     <div id="uploadContent">
                         <div class="upload-icon">📄</div>
@@ -82,11 +217,11 @@
                         <p>Supports PDF, Word, and text files up to 30 pages</p>
                         <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" style="display: none;">
                         <button class="cta-button" type="button" id="chooseFileBtn">Choose File</button>
-                        
+
                         <div class="or-divider">
                             <span>or</span>
                         </div>
-                        
+
                         <div class="paste-area">
                             <textarea id="contractText" placeholder="Paste your contract text here..." rows="6"></textarea>
                             <button class="cta-button" onclick="analyzeText()">Analyze Pasted Text</button>
@@ -111,12 +246,12 @@
 
                 <div class="analysis-results" id="analysisResults">
                     <h3>Analysis Complete</h3>
-                    
+
                     <div class="risk-score">
                         <div class="score-circle risk-high" id="riskScore">8</div>
                         <div>
-                            <h4>Overall Risk Score: High Risk</h4>
-                            <p>This contract contains several clauses that could put you at significant disadvantage.</p>
+                            <h4 id="riskTitle">Overall Risk Score: High Risk</h4>
+                            <p id="riskDesc">This contract contains several clauses that could put you at significant disadvantage.</p>
                         </div>
                     </div>
 
@@ -125,25 +260,27 @@
                     </div>
 
                     <h4>🚨 Priority Issues Found:</h4>
-                    
-                    <div class="clause-item">
-                        <h5>⚠️ Payment/Termination Clause - HIGH RISK</h5>
-                        <p><strong>Why it's risky:</strong> A 7-day cure period is extremely short. Most businesses operate on 30-day payment cycles. Immediate termination gives the counterparty excessive leverage and could disrupt your operations unexpectedly.</p>
-                        
-                        <p><strong>Suggested alternative:</strong> "Supplier may terminate this Agreement if Customer fails to pay any undisputed amount within thirty (30) days after receipt of written notice."</p>
-                        
-                        <p><strong>What to say:</strong> "We typically operate on net-30 terms. Can we update the payment cure period to 30 days and include written notice before termination?"</p>
-                        
-                        <p><strong>Priority:</strong> <span class="urgent">URGENT</span> - Address before signing</p>
+
+                    <div id="issuesContainer">
+                        <div class="clause-item">
+                            <h5>⚠️ Payment/Termination Clause - HIGH RISK</h5>
+                            <p><strong>Why it's risky:</strong> A 7-day cure period is extremely short. Most businesses operate on 30-day payment cycles. Immediate termination gives the counterparty excessive leverage and could disrupt your operations unexpectedly.</p>
+
+                            <p><strong>Suggested alternative:</strong> "Supplier may terminate this Agreement if Customer fails to pay any undisputed amount within thirty (30) days after receipt of written notice."</p>
+
+                            <p><strong>What to say:</strong> "We typically operate on net-30 terms. Can we update the payment cure period to 30 days and include written notice before termination?"</p>
+
+                            <p><strong>Priority:</strong> <span class="urgent">URGENT</span> - Address before signing</p>
+                        </div>
                     </div>
 
                     <h4>📋 Quick Action Checklist:</h4>
-                    <ol class="action-list">
+                    <ol class="action-list" id="quickActions">
                         <li>Negotiate 30-day payment cure period instead of 7 days</li>
                         <li>Add requirement for written notice before termination</li>
                         <li>Consider adding a dispute resolution process</li>
                         <li>Review other payment terms for consistency</li>
-                        <li>Get legal review if contract value > $10,000</li>
+                        <li>Get legal review if contract value &gt; $10,000</li>
                     </ol>
 
                     <div class="legal-disclaimer">
@@ -162,7 +299,7 @@
             <div class="container">
                 <h2>Simple, Transparent Pricing</h2>
                 <p class="subtitle">Pay per contract or save with a subscription</p>
-                
+
                 <div class="pricing-grid">
                     <div class="pricing-card">
                         <h3>Free Trial</h3>
@@ -177,7 +314,7 @@
                         </ul>
                         <button class="cta-button full-width" onclick="handlePayment('free')">Start Free</button>
                     </div>
-                    
+
                     <div class="pricing-card featured">
                         <div class="popular-badge"><strong>MOST POPULAR</strong></div>
                         <h3>Pay Per Use</h3>
@@ -192,7 +329,7 @@
                         </ul>
                         <button class="cta-button full-width" onclick="handlePayment('payperuse')">Analyze Contract</button>
                     </div>
-                    
+
                     <div class="pricing-card">
                         <h3>Business Plan</h3>
                         <div class="price"><strong>$49</strong><span class="period">/month</span></div>
@@ -207,7 +344,7 @@
                         <button class="cta-button full-width" onclick="handlePayment('business')">Start 14-Day Trial</button>
                     </div>
                 </div>
-                
+
                 <div class="expert-review">
                     <p>💡 <strong>Need legal expert review?</strong> Add human lawyer review for $99/contract</p>
                 </div>
@@ -218,7 +355,7 @@
             <div class="container">
                 <h2>Get in Touch</h2>
                 <p class="subtitle">Questions about ContractCoach? We're here to help!</p>
-                
+
                 <div class="contact-grid">
                     <div class="contact-info">
                         <h3>Contact Information</h3>
@@ -239,18 +376,18 @@
                             <span>Usually within 24 hours</span>
                         </div>
                     </div>
-                    
+
                     <div class="contact-form">
                         <h3>Send us a Message</h3>
                         <form id="contactForm">
                             <div class="form-group">
-                                <input type="text" id="name" name="name" placeholder="Your Name" required>
+                                <input type="text" id="name" name="name" placeholder="Your Name" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc">
                             </div>
                             <div class="form-group">
-                                <input type="email" id="email" name="email" placeholder="Your Email" required>
+                                <input type="email" id="email" name="email" placeholder="Your Email" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc">
                             </div>
                             <div class="form-group">
-                                <select id="subject" name="subject" required>
+                                <select id="subject" name="subject" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc">
                                     <option value="">Select Topic</option>
                                     <option value="general">General Question</option>
                                     <option value="pricing">Pricing & Plans</option>
@@ -260,7 +397,7 @@
                                 </select>
                             </div>
                             <div class="form-group">
-                                <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
+                                <textarea id="message" name="message" placeholder="Your Message" rows="5" required style="width:100%;padding:10px;border-radius:8px;border:1px solid #e6eefc"></textarea>
                             </div>
                             <button type="submit" class="cta-button full-width">Send Message</button>
                         </form>
