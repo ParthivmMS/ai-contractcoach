@@ -1,120 +1,85 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta charset="UTF-8">
+    <!-- Improved viewport for cross-device scaling -->
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ContractCoach — AI contract analysis platform for risk detection, negotiation scripts and clause suggestions.">
     <title>ContractCoach - AI Contract Analysis Platform</title>
-    <link rel="stylesheet" href="styles.css" />
-    <!-- Lightweight favicon (keeps your brand symbol) -->
+
+    <!-- Keep CSS separate -->
+    <link rel="stylesheet" href="styles.css">
+
+    <!-- Keep favicon (simple emoji SVG) -->
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>⚖️</text></svg>">
+
 </head>
 <body>
-    <!-- SVG icons (keeps layout self-contained and avoids external libs) -->
-    <svg aria-hidden="true" style="display:none">
-        <symbol id="icon-search" viewBox="0 0 24 24"><path d="M21 21l-4.35-4.35" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="11" cy="11" r="6" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
-        <symbol id="icon-check" viewBox="0 0 24 24"><path d="M20 6L9 17l-5-5" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></symbol>
-        <symbol id="icon-upload" viewBox="0 0 24 24"><path d="M12 3v12" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><path d="M8 7l4-4 4 4" stroke="currentColor" stroke-width="2" fill="none" stroke-linecap="round"/><rect x="3" y="17" width="18" height="4" rx="1" stroke="currentColor" stroke-width="2" fill="none"/></symbol>
-        <symbol id="icon-menu" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-        <symbol id="icon-close" viewBox="0 0 24 24"><path d="M6 6l12 12M6 18L18 6" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></symbol>
-    </svg>
+    <header>
+        <nav class="container">
+            <div class="logo">ContractCoach</div>
 
-    <header class="site-header" role="banner">
-        <nav class="container nav" role="navigation" aria-label="Main navigation">
-            <div class="brand">
-                <!-- Replace emoji with subtle SVG-styled mark if you have a logo file later -->
-                <div class="logo" aria-hidden="true">⚖️</div>
-                <a href="#" class="brand-title">ContractCoach</a>
-            </div>
-
-            <button id="mobileNavToggle" class="mobile-toggle" aria-expanded="false" aria-controls="primaryNav">
-                <svg class="icon" aria-hidden="true"><use href="#icon-menu"></use></svg>
-                <span class="sr-only">Open menu</span>
+            <!-- Mobile menu toggle (script.js can hook into this if you already have mobile logic) -->
+            <button id="mobileMenuBtn" class="mobile-menu-btn" aria-label="Toggle navigation" aria-expanded="false">
+                <span class="hamburger"></span>
             </button>
 
-            <ul id="primaryNav" class="nav-links">
+            <ul class="nav-links" id="navLinks">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#analyzer">Try It</a></li>
                 <li><a href="#pricing">Pricing</a></li>
                 <li><a href="#contact">Contact</a></li>
             </ul>
 
-            <div class="nav-cta">
-                <a href="#analyzer" class="cta-button">Start Free Analysis</a>
-            </div>
+            <a href="#analyzer" class="cta-button">Start Free Analysis</a>
         </nav>
     </header>
 
     <main>
         <section class="hero">
-            <div class="container hero-inner">
-                <div class="hero-left">
-                    <h1 class="hero-title">Your AI Contract Coach</h1>
-                    <p class="hero-sub">Analyze contracts in seconds. Negotiate like a pro. Save thousands on legal fees.</p>
-                    <div class="hero-actions">
-                        <a href="#analyzer" class="cta-button hero-cta">Analyze Your First Contract</a>
-                        <a href="#pricing" class="cta-link">See Pricing</a>
-                    </div>
-
-                    <ul class="trust-row" aria-hidden="true">
-                        <li><svg class="icon"><use href="#icon-check"></use></svg> Trusted by startups</li>
-                        <li><svg class="icon"><use href="#icon-check"></use></svg> GDPR-aware</li>
-                        <li><svg class="icon"><use href="#icon-check"></use></svg> Built for legal teams</li>
-                    </ul>
-                </div>
-
-                <div class="hero-card" aria-hidden="true">
-                    <div class="hero-card-head">
-                        <div class="file-preview">📄 <small>Sample</small></div>
-                        <div class="file-meta">Quick demo: paste or upload to try</div>
-                    </div>
-                    <div class="hero-card-body">
-                        <p><strong>Fast summary:</strong> Upload a contract and get a clear clause-by-clause summary, risk ratings, suggested language, and negotiation lines.</p>
-                    </div>
-                </div>
+            <div class="container">
+                <h1>Your AI Contract Coach</h1>
+                <p>Analyze contracts in seconds. Negotiate like a pro. Save thousands on legal fees.</p>
+                <a href="#analyzer" class="cta-button hero-cta">Analyze Your First Contract Free</a>
             </div>
         </section>
 
         <section id="features" class="features">
             <div class="container">
                 <h2>Stop Getting Trapped by Bad Contracts</h2>
-                <p class="subtitle">For startups, freelancers, and legal teams who need quick, reliable contract checks</p>
-
-                <div class="feature-grid" role="list">
-                    <article class="feature-card" role="listitem">
-                        <div class="feature-icon"><svg class="icon"><use href="#icon-search"></use></svg></div>
+                <p class="subtitle">For startups, freelancers, and small businesses who can't afford $500/hour lawyers</p>
+                
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <div class="feature-icon">🔍</div>
                         <h3>Instant Risk Detection</h3>
-                        <p>AI flags risky clauses in plain English so you can prioritize what matters.</p>
-                    </article>
-
-                    <article class="feature-card" role="listitem">
+                        <p>AI scans your contract and flags risky clauses in plain English. No legal degree required.</p>
+                    </div>
+                    <div class="feature-card">
                         <div class="feature-icon">✏️</div>
                         <h3>Smart Alternatives</h3>
-                        <p>Get market-standard clause alternatives and suggested wording for counteroffers.</p>
-                    </article>
-
-                    <article class="feature-card" role="listitem">
+                        <p>Get market-standard clause alternatives that protect your interests better.</p>
+                    </div>
+                    <div class="feature-card">
                         <div class="feature-icon">💬</div>
                         <h3>Negotiation Scripts</h3>
-                        <p>Friendly and firm scripts tailored to each clause to speed up negotiations.</p>
-                    </article>
-
-                    <article class="feature-card" role="listitem">
+                        <p>Know exactly what to say to improve contract terms. Friendly and firm options included.</p>
+                    </div>
+                    <div class="feature-card">
                         <div class="feature-icon">⚡</div>
                         <h3>Priority Actions</h3>
-                        <p>Ranked checklist so you fix urgent issues before signing.</p>
-                    </article>
-
-                    <article class="feature-card" role="listitem">
+                        <p>Focus on what matters most. Get a ranked list of urgent, important, and optional changes.</p>
+                    </div>
+                    <div class="feature-card">
                         <div class="feature-icon">📊</div>
                         <h3>Risk Scoring</h3>
-                        <p>Clear score (1–10) and confidence level so you can make informed decisions.</p>
-                    </article>
-
-                    <article class="feature-card" role="listitem">
+                        <p>Overall contract risk score (1-10) so you know how safe it is to sign as-is.</p>
+                    </div>
+                    <div class="feature-card">
                         <div class="feature-icon">⚖️</div>
                         <h3>Expert-Backed</h3>
-                        <p>Trained on contracts and informed by commercial lawyers — not legal advice.</p>
-                    </article>
+                        <p>AI trained on thousands of contracts with input from practicing commercial lawyers.</p>
+                    </div>
                 </div>
             </div>
         </section>
@@ -122,34 +87,25 @@
         <section id="analyzer" class="analyzer-section">
             <div class="container">
                 <h2>Try ContractCoach Now</h2>
-                <p class="subtitle">Upload your contract or paste text — supports PDF, DOCX, TXT</p>
+                <p class="subtitle">Upload your contract or try our demo clause analysis</p>
+                
+                <div class="upload-area" id="uploadArea" role="region" aria-label="Upload contract area">
+                    <div id="uploadContent">
+                        <div class="upload-icon">📄</div>
+                        <h3>Drop your contract here</h3>
+                        <p>Supports PDF, Word, and text files up to 30 pages</p>
 
-                <div id="uploadArea" class="upload-area" tabindex="0" aria-label="Upload contract area">
-                    <div id="uploadContent" class="upload-content">
-                        <div class="upload-left">
-                            <div class="upload-icon" aria-hidden="true">
-                                <svg class="icon"><use href="#icon-upload"></use></svg>
-                            </div>
-                            <h3>Drop your contract here</h3>
-                            <p class="muted">Or upload a file (PDF, DOCX, TXT) up to 30MB</p>
+                        <!-- Hidden native input (script.js should open it) -->
+                        <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" aria-label="Choose contract file">
+                        <button class="cta-button" type="button" id="chooseFileBtn">Choose File</button>
 
-                            <div class="file-actions">
-                                <input type="file" id="fileInput" accept=".pdf,.doc,.docx,.txt" aria-label="Upload contract file">
-                                <button id="chooseFileBtn" class="cta-button" type="button">Choose File</button>
-                                <button id="demoBtn" class="cta-button secondary" type="button">Use Demo Clause</button>
-                            </div>
+                        <div class="or-divider">
+                            <span>or</span>
                         </div>
 
-                        <div class="upload-right">
-                            <div class="or-divider"><span>or paste text</span></div>
-                            <div class="paste-area">
-                                <label for="contractText" class="sr-only">Paste contract text</label>
-                                <textarea id="contractText" placeholder="Paste your contract text here..." rows="6"></textarea>
-                                <div class="paste-actions">
-                                    <button class="cta-button" type="button" onclick="analyzeText()">Analyze Pasted Text</button>
-                                    <button class="cta-button tertiary" type="button" onclick="clearPasted()">Clear</button>
-                                </div>
-                            </div>
+                        <div class="paste-area">
+                            <textarea id="contractText" placeholder="Paste your contract text here..." rows="6" aria-label="Paste contract text"></textarea>
+                            <button class="cta-button" type="button" onclick="analyzeText()">Analyze Pasted Text</button>
                         </div>
                     </div>
                 </div>
@@ -159,43 +115,62 @@
                     <div class="demo-contract" id="demoClause" role="button" tabindex="0" aria-pressed="false">
                         <strong>Sample Termination Clause:</strong><br>
                         "Supplier may terminate this Agreement immediately upon written notice if Customer fails to pay any undisputed amount within 7 days of invoice."
-                        <br><br><em>Click to analyze this clause</em>
+                        <br><br>
+                        <em>Click to analyze this clause ↗</em>
                     </div>
                 </div>
 
-                <div id="loadingAnimation" class="loading-animation" aria-live="polite" style="display:none;">
+                <div class="loading-animation" id="loadingAnimation" aria-live="polite">
                     <div class="spinner" aria-hidden="true"></div>
-                    <p id="loadingText">Analyzing contract... This may take a few seconds</p>
+                    <p>Analyzing contract... This may take a few seconds</p>
                 </div>
 
-                <section id="analysisResults" class="analysis-results" aria-live="polite" style="display:none;">
+                <div class="analysis-results" id="analysisResults" aria-live="polite">
                     <h3>Analysis Complete</h3>
-
+                    
                     <div class="risk-score">
-                        <div class="score-circle risk-high" id="riskScore">—</div>
-                        <div class="risk-summary">
-                            <h4 id="riskLabel">Overall Risk Score</h4>
-                            <p id="riskExplanation">Summary will appear here after analysis.</p>
+                        <div class="score-circle risk-high" id="riskScore">8</div>
+                        <div>
+                            <h4>Overall Risk Score: High Risk</h4>
+                            <p>This contract contains several clauses that could put you at significant disadvantage.</p>
                         </div>
                     </div>
 
                     <div class="progress-bar" aria-hidden="true">
-                        <div class="progress-fill" id="progressFill" style="width:0%"></div>
+                        <div class="progress-fill" id="progressFill"></div>
                     </div>
 
-                    <div id="priorityIssues" class="priority-issues">
-                        <!-- JS will populate this using same structure as before -->
+                    <h4>🚨 Priority Issues Found:</h4>
+                    
+                    <div class="clause-item">
+                        <h5>⚠️ Payment/Termination Clause - HIGH RISK</h5>
+                        <p><strong>Why it's risky:</strong> A 7-day cure period is extremely short. Most businesses operate on 30-day payment cycles. Immediate termination gives the counterparty excessive leverage and could disrupt your operations unexpectedly.</p>
+                        
+                        <p><strong>Suggested alternative:</strong> "Supplier may terminate this Agreement if Customer fails to pay any undisputed amount within thirty (30) days after receipt of written notice."</p>
+                        
+                        <p><strong>What to say:</strong> "We typically operate on net-30 terms. Can we update the payment cure period to 30 days and include written notice before termination?"</p>
+                        
+                        <p><strong>Priority:</strong> <span class="urgent">URGENT</span> - Address before signing</p>
                     </div>
 
-                    <div class="action-buttons">
-                        <button class="cta-button" id="downloadReportBtn" onclick="downloadReport()">Download Full Report (PDF)</button>
-                        <button class="cta-button secondary" id="expertReviewBtn" onclick="handlePayment('expert-review')">Get Expert Review ($99)</button>
-                    </div>
+                    <h4>📋 Quick Action Checklist:</h4>
+                    <ol class="action-list">
+                        <li>Negotiate 30-day payment cure period instead of 7 days</li>
+                        <li>Add requirement for written notice before termination</li>
+                        <li>Consider adding a dispute resolution process</li>
+                        <li>Review other payment terms for consistency</li>
+                        <li>Get legal review if contract value &gt; $10,000</li>
+                    </ol>
 
                     <div class="legal-disclaimer">
                         <strong>⚖️ Legal Disclaimer:</strong> This analysis is not legal advice. For binding legal advice, consult a licensed attorney in your jurisdiction.
                     </div>
-                </section>
+
+                    <div class="action-buttons">
+                        <button class="cta-button" onclick="downloadReport()">Download Full Report (PDF)</button>
+                        <button class="cta-button secondary" onclick="handlePayment('expert-review')">Get Expert Review ($99)</button>
+                    </div>
+                </div>
             </div>
         </section>
 
@@ -203,47 +178,52 @@
             <div class="container">
                 <h2>Simple, Transparent Pricing</h2>
                 <p class="subtitle">Pay per contract or save with a subscription</p>
-
+                
                 <div class="pricing-grid">
                     <div class="pricing-card">
                         <h3>Free Trial</h3>
                         <div class="price"><strong>$0</strong></div>
-                        <p class="price-desc">2 contract analyses</p>
+                        <p class="price-desc">1 contract analysis</p>
                         <ul class="feature-list">
                             <li class="included">Basic risk analysis</li>
                             <li class="included">Clause-by-clause review</li>
                             <li class="included">Negotiation tips</li>
                             <li class="excluded">PDF export</li>
+                            <li class="excluded">Priority support</li>
                         </ul>
                         <button class="cta-button full-width" onclick="handlePayment('free')">Start Free</button>
                     </div>
-
+                    
                     <div class="pricing-card featured">
-                        <div class="popular-badge">MOST POPULAR</div>
+                        <div class="popular-badge"><strong>MOST POPULAR</strong></div>
                         <h3>Pay Per Use</h3>
                         <div class="price"><strong>$9</strong></div>
                         <p class="price-desc">Per contract analysis</p>
                         <ul class="feature-list">
                             <li class="included">Complete risk analysis</li>
                             <li class="included">Alternative clauses</li>
+                            <li class="included">Negotiation scripts</li>
                             <li class="included">PDF export</li>
+                            <li class="included">7-day support</li>
                         </ul>
                         <button class="cta-button full-width" onclick="handlePayment('payperuse')">Analyze Contract</button>
                     </div>
-
+                    
                     <div class="pricing-card">
                         <h3>Business Plan</h3>
                         <div class="price"><strong>$49</strong><span class="period">/month</span></div>
                         <p class="price-desc">Up to 20 contracts/month</p>
                         <ul class="feature-list">
+                            <li class="included">Everything in Pay Per Use</li>
                             <li class="included">Team collaboration</li>
                             <li class="included">Advanced analytics</li>
                             <li class="included">Priority support</li>
+                            <li class="included">API access</li>
                         </ul>
                         <button class="cta-button full-width" onclick="handlePayment('business')">Start 14-Day Trial</button>
                     </div>
                 </div>
-
+                
                 <div class="expert-review">
                     <p>💡 <strong>Need legal expert review?</strong> Add human lawyer review for $99/contract</p>
                 </div>
@@ -254,20 +234,37 @@
             <div class="container">
                 <h2>Get in Touch</h2>
                 <p class="subtitle">Questions about ContractCoach? We're here to help!</p>
-
+                
                 <div class="contact-grid">
                     <div class="contact-info">
                         <h3>Contact Information</h3>
-                        <div class="contact-item"><strong>📧 Email:</strong> <a href="mailto:hello@contractcoach.com">hello@contractcoach.com</a></div>
-                        <div class="contact-item"><strong>💬 Support:</strong> <a href="mailto:support@contractcoach.com">support@contractcoach.com</a></div>
-                        <div class="contact-item"><strong>🏢 Business:</strong> <a href="mailto:business@contractcoach.com">business@contractcoach.com</a></div>
+                        <div class="contact-item">
+                            <strong>📧 Email:</strong>
+                            <a href="mailto:hello@contractcoach.com">hello@contractcoach.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <strong>💬 Support:</strong>
+                            <a href="mailto:support@contractcoach.com">support@contractcoach.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <strong>🏢 Business Inquiries:</strong>
+                            <a href="mailto:business@contractcoach.com">business@contractcoach.com</a>
+                        </div>
+                        <div class="contact-item">
+                            <strong>⏰ Response Time:</strong>
+                            <span>Usually within 24 hours</span>
+                        </div>
                     </div>
-
+                    
                     <div class="contact-form">
                         <h3>Send us a Message</h3>
-                        <form id="contactForm" novalidate>
-                            <div class="form-group"><input type="text" id="name" name="name" placeholder="Your Name" required></div>
-                            <div class="form-group"><input type="email" id="email" name="email" placeholder="Your Email" required></div>
+                        <form id="contactForm">
+                            <div class="form-group">
+                                <input type="text" id="name" name="name" placeholder="Your Name" required>
+                            </div>
+                            <div class="form-group">
+                                <input type="email" id="email" name="email" placeholder="Your Email" required>
+                            </div>
                             <div class="form-group">
                                 <select id="subject" name="subject" required>
                                     <option value="">Select Topic</option>
@@ -275,9 +272,12 @@
                                     <option value="pricing">Pricing & Plans</option>
                                     <option value="technical">Technical Support</option>
                                     <option value="business">Business Partnership</option>
+                                    <option value="feedback">Feedback & Suggestions</option>
                                 </select>
                             </div>
-                            <div class="form-group"><textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea></div>
+                            <div class="form-group">
+                                <textarea id="message" name="message" placeholder="Your Message" rows="5" required></textarea>
+                            </div>
                             <button type="submit" class="cta-button full-width">Send Message</button>
                         </form>
                     </div>
@@ -286,80 +286,29 @@
         </section>
     </main>
 
-    <footer class="site-footer">
+    <footer>
         <div class="container">
-            <div class="footer-grid">
-                <div>© <span id="year"></span> ContractCoach. Not a substitute for legal advice.</div>
-                <div class="footer-links">
-                    <a href="/privacy.html">Privacy</a>
-                    <a href="/terms.html">Terms</a>
-                </div>
-            </div>
+            <p>&copy; 2024 ContractCoach. Not a substitute for legal advice. Consult licensed attorneys for binding legal advice.</p>
         </div>
     </footer>
 
-    <script>
-        // Tiny UI helpers so the page is usable without touching script.js
-        document.getElementById('year').textContent = new Date().getFullYear();
-
-        // Mobile nav toggle
-        const mobileToggle = document.getElementById('mobileNavToggle');
-        const primaryNav = document.getElementById('primaryNav');
-        mobileToggle.addEventListener('click', () => {
-            const expanded = mobileToggle.getAttribute('aria-expanded') === 'true';
-            mobileToggle.setAttribute('aria-expanded', String(!expanded));
-            primaryNav.classList.toggle('open');
-        });
-
-        // Wire choose file button to hidden input
-        const chooseFileBtn = document.getElementById('chooseFileBtn');
-        const fileInput = document.getElementById('fileInput');
-        if (chooseFileBtn && fileInput) {
-            chooseFileBtn.addEventListener('click', () => fileInput.click());
-        }
-
-        // Demo button triggers click on demo clause
-        const demoBtn = document.getElementById('demoBtn');
-        const demoClause = document.getElementById('demoClause');
-        if (demoBtn && demoClause) {
-            demoBtn.addEventListener('click', () => demoClause.click());
-        }
-
-        // helper to clear pasted area
-        function clearPasted() {
-            const ta = document.getElementById('contractText');
-            if (ta) ta.value = '';
-        }
-
-        // placeholder functions referenced by existing HTML (these should already exist in your script.js)
-        function analyzeText() {
-            // your existing script.js has logic - this keeps the button functional if script.js is loaded
-            if (window.handleFileUpload) {
-                // do nothing here; script.js will handle pasted text via analyzeText if present
-            } else {
-                const txt = document.getElementById('contractText').value;
-                alert('Stub analyzeText(): pasted text length = ' + (txt ? txt.length : 0) + '. Your script.js should handle real analysis.');
-            }
-        }
-
-        function downloadReport() {
-            if (window.downloadReport) {
-                window.downloadReport();
-            } else {
-                alert('Download report placeholder. Implement downloadReport() in script.js.');
-            }
-        }
-
-        function handlePayment(plan) {
-            if (window.handlePayment) {
-                window.handlePayment(plan);
-            } else {
-                alert('Payment placeholder: ' + plan);
-            }
-        }
-    </script>
-
-    <!-- keep app's script reference unchanged -->
+    <!-- Keep your external JS -->
     <script src="script.js"></script>
+
+    <!-- Tiny inline helper to enable mobile menu toggle if script.js doesn't already handle it.
+         It does not change layout and is optional — removes the need to modify your script.js.
+         If you already have mobile logic in script.js, this is harmless. -->
+    <script>
+        (function(){
+            const btn = document.getElementById('mobileMenuBtn');
+            const nav = document.getElementById('navLinks');
+            if (!btn || !nav) return;
+            btn.addEventListener('click', () => {
+                const expanded = btn.getAttribute('aria-expanded') === 'true';
+                btn.setAttribute('aria-expanded', String(!expanded));
+                nav.classList.toggle('open');
+            });
+        })();
+    </script>
 </body>
 </html>
