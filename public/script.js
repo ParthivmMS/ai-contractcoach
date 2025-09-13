@@ -1,8 +1,17 @@
-// ContractCoach JavaScript - Connected to Render Backend
+// ContractCoach JavaScript - Connected to Render Backend with Authentication
 const BACKEND_URL = 'https://contractcoach-backend.onrender.com';
+
+// ✅ NEW: Authentication state management
+let currentUser = null;
+let authToken = null;
 
 document.addEventListener('DOMContentLoaded', function() {
     console.log('🚀 ContractCoach Frontend Loading...');
+    
+    // Initialize authentication first
+    initAuth();
+    
+    // Then initialize other features
     initializeFileUpload();
     initSmoothScrolling();
     initTypingEffect();
@@ -10,6 +19,357 @@ document.addEventListener('DOMContentLoaded', function() {
     testBackendConnection();
 });
 
+// ✅ NEW: Authentication System
+function initAuth() {
+    console.log('🔐 Initializing authentication...');
+    
+    // Check for token in URL (OAuth callback)
+    checkOAuthCallback();
+    
+    // Load saved token
+    loadSavedAuth();
+    
+    // Initialize auth UI
+    initAuthUI();
+    
+    // Update UI based on auth state
+    updateAuthUI();
+}
+
+function checkOAuthCallback() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const token = urlParams.get('token');
+    
+    if (token) {
+        console.log('🔑 OAuth token received');
+        authToken = token;
+        localStorage.setItem('contractcoach_token', token);
+        
+        // Clean URL
+        window.history.replaceState({}, document.title, window.location.pathname);
+        
+        // Fetch user info
+        fetchUserProfile();
+    }
+}
+
+function loadSavedAuth() {
+    const savedToken = localStorage.getItem('contractcoach_token');
+    if (savedToken) {
+        authToken = savedToken;
+        fetchUserProfile();
+    }
+}
+
+async function fetchUserProfile() {
+    if (!authToken) return;
+    
+    try {
+        const response = await fetch(`${BACKEND_URL}/auth/me`, {
+            headers: {
+                'Authorization': `Bearer ${authToken}`,
+                'Content-Type': 'application/json'
+            }
+        });
+        
+        if (response.ok) {
+            const data = await response.json();
+            currentUser = data.user;
+            updateAuthUI();
+            console.log('👤 User authenticated:', currentUser.email);
+        } else {
+            // Token invalid, clear it
+            logout();
+        }
+    } catch (error) {
+        console.error('❌ Failed to fetch user profile:', error);
+        logout();
+    }
+}
+
+function initAuthUI() {
+    // Login modal handlers
+    const loginBtn = document.getElementById('loginBtn');
+    const signupBtn = document.getElementById('signupBtn');
+    const loginModal = document.getElementById('loginModal');
+    const signupModal = document.getElementById('signupModal');
+    const authRequiredModal = document.getElementById('authRequiredModal');
+    
+    // Modal open/close handlers
+    if (loginBtn) loginBtn.onclick = () => openModal('loginModal');
+    if (signupBtn) signupBtn.onclick = () => openModal('signupModal');
+    
+    // Modal close handlers
+    document.getElementById('closeLoginModal')?.addEventListener('click', () => closeModal('loginModal'));
+    document.getElementById('closeSignupModal')?.addEventListener('click', () => closeModal('signupModal'));
+    document.getElementById('closeAuthRequiredModal')?.addEventListener('click', () => closeModal('authRequiredModal'));
+    
+    // Modal overlay click to close
+    [loginModal, signupModal, authRequiredModal].forEach(modal => {
+        if (modal) {
+            modal.addEventListener('click', (e) => {
+                if (e.target === modal) closeModal(modal.id);
+            });
+        }
+    });
+    
+    // Switch between modals
+    document.getElementById('switchToSignup')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('loginModal');
+        openModal('signupModal');
+    });
+    
+    document.getElementById('switchToLogin')?.addEventListener('click', (e) => {
+        e.preventDefault();
+        closeModal('signupModal');
+        openModal('loginModal');
+    });
+    
+    // Form submissions
+    document.getElementById('loginForm')?.addEventListener('submit', handleLogin);
+    document.getElementById('signupForm')?.addEventListener('submit', handleSignup);
+    
+    // Social auth buttons
+    document.getElementById('googleLoginBtn')?.addEventListener('click', () => handleSocialAuth('google'));
+    document.getElementById('googleSignupBtn')?.addEventListener('click', () => handleSocialAuth('google'));
+    document.getElementById('linkedinLoginBtn')?.addEventListener('click', () => handleSocialAuth('linkedin'));
+    document.getElementById('linkedinSignupBtn')?.addEventListener('click', () => handleSocialAuth('linkedin'));
+    
+    // User menu
+    document.getElementById('userMenuBtn')?.addEventListener('click', toggleUserMenu);
+    document.getElementById('logoutBtn')?.addEventListener('click', logout);
+    
+    // Auth required modal buttons
+    document.getElementById('authRequiredLoginBtn')?.addEventListener('click', () => {
+        closeModal('authRequiredModal');
+        openModal('loginModal');
+    });
+    document.getElementById('authRequiredSignupBtn')?.addEventListener('click', () => {
+        closeModal('authRequiredModal');
+        openModal('signupModal');
+    });
+    
+    // Pricing buttons
+    document.getElementById('freeTrialBtn')?.addEventListener('click', () => {
+        if (!currentUser) {
+            openModal('signupModal');
+        } else {
+            document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
+            showNotification('🎉 You already have a free account! Try analyzing a contract below.', 'success');
+        }
+    });
+    
+    // Hero CTA button
+    document.getElementById('heroAnalyzeBtn')?.addEventListener('click', () => {
+        if (!currentUser) {
+            openModal('authRequiredModal');
+        } else {
+            document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
+        }
+    });
+    
+    // Update analyze text button
+    const analyzeTextBtn = document.getElementById('analyzeTextBtn');
+    if (analyzeTextBtn) {
+        analyzeTextBtn.onclick = () => {
+            if (!currentUser) {
+                openModal('authRequiredModal');
+            } else {
+                analyzeText();
+            }
+        };
+    }
+}
+
+function updateAuthUI() {
+    const guestNav = document.getElementById('guestNav');
+    const userNav = document.getElementById('userNav');
+    const userLimitsDisplay = document.getElementById('userLimitsDisplay');
+    
+    if (currentUser) {
+        // Show user navigation
+        if (guestNav) guestNav.style.display = 'none';
+        if (userNav) userNav.style.display = 'flex';
+        
+        // Update user info
+        const userName = document.getElementById('userName');
+        const userPlan = document.getElementById('userPlan');
+        const userAvatar = document.getElementById('userAvatar');
+        
+        if (userName) userName.textContent = `${currentUser.firstName} ${currentUser.lastName}`;
+        
+        if (userPlan) {
+            const remaining = currentUser.subscription.monthlyLimit - currentUser.subscription.contractsAnalyzed;
+            userPlan.textContent = `${currentUser.subscription.type} Plan (${remaining}/${currentUser.subscription.monthlyLimit} left)`;
+        }
+        
+        if (userAvatar && currentUser.avatar) {
+            userAvatar.src = currentUser.avatar;
+            userAvatar.style.display = 'block';
+        }
+        
+        // Show usage limits
+        if (userLimitsDisplay) {
+            const remaining = currentUser.subscription.monthlyLimit - currentUser.subscription.contractsAnalyzed;
+            const limitsText = document.getElementById('limitsText');
+            if (limitsText) {
+                limitsText.textContent = `${currentUser.subscription.type} Plan: ${remaining} of ${currentUser.subscription.monthlyLimit} analyses remaining this month`;
+            }
+            userLimitsDisplay.style.display = 'block';
+        }
+        
+    } else {
+        // Show guest navigation
+        if (guestNav) guestNav.style.display = 'flex';
+        if (userNav) userNav.style.display = 'none';
+        if (userLimitsDisplay) userLimitsDisplay.style.display = 'none';
+    }
+}
+
+async function handleLogin(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = document.getElementById('loginSubmitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
+    
+    // Show loading state
+    btnText.style.display = 'none';
+    btnSpinner.style.display = 'inline-block';
+    submitBtn.disabled = true;
+    
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(`${BACKEND_URL}/auth/login`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                email: formData.get('email'),
+                password: formData.get('password')
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            authToken = data.token;
+            currentUser = data.user;
+            localStorage.setItem('contractcoach_token', authToken);
+            
+            closeModal('loginModal');
+            updateAuthUI();
+            showNotification(`Welcome back, ${currentUser.firstName}! 🎉`, 'success');
+            
+        } else {
+            showNotification(data.error || 'Login failed', 'error');
+        }
+    } catch (error) {
+        console.error('Login error:', error);
+        showNotification('Login failed. Please try again.', 'error');
+    } finally {
+        // Reset button state
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+}
+
+async function handleSignup(e) {
+    e.preventDefault();
+    const form = e.target;
+    const submitBtn = document.getElementById('signupSubmitBtn');
+    const btnText = submitBtn.querySelector('.btn-text');
+    const btnSpinner = submitBtn.querySelector('.btn-spinner');
+    
+    // Show loading state
+    btnText.style.display = 'none';
+    btnSpinner.style.display = 'inline-block';
+    submitBtn.disabled = true;
+    
+    try {
+        const formData = new FormData(form);
+        const response = await fetch(`${BACKEND_URL}/auth/register`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                firstName: formData.get('firstName'),
+                lastName: formData.get('lastName'),
+                email: formData.get('email'),
+                password: formData.get('password')
+            })
+        });
+        
+        const data = await response.json();
+        
+        if (response.ok) {
+            authToken = data.token;
+            currentUser = data.user;
+            localStorage.setItem('contractcoach_token', authToken);
+            
+            closeModal('signupModal');
+            updateAuthUI();
+            showNotification(`Welcome to ContractCoach, ${currentUser.firstName}! 🎉`, 'success');
+            
+            // Scroll to analyzer
+            setTimeout(() => {
+                document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
+            }, 1000);
+            
+        } else {
+            showNotification(data.error || 'Registration failed', 'error');
+        }
+    } catch (error) {
+        console.error('Signup error:', error);
+        showNotification('Registration failed. Please try again.', 'error');
+    } finally {
+        // Reset button state
+        btnText.style.display = 'inline';
+        btnSpinner.style.display = 'none';
+        submitBtn.disabled = false;
+    }
+}
+
+function handleSocialAuth(provider) {
+    window.location.href = `${BACKEND_URL}/auth/${provider}`;
+}
+
+function toggleUserMenu() {
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) {
+        dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+    }
+}
+
+function logout() {
+    authToken = null;
+    currentUser = null;
+    localStorage.removeItem('contractcoach_token');
+    updateAuthUI();
+    showNotification('Signed out successfully', 'info');
+    
+    // Hide user dropdown
+    const dropdown = document.getElementById('userDropdown');
+    if (dropdown) dropdown.style.display = 'none';
+}
+
+function openModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'flex';
+        document.body.style.overflow = 'hidden';
+    }
+}
+
+function closeModal(modalId) {
+    const modal = document.getElementById(modalId);
+    if (modal) {
+        modal.style.display = 'none';
+        document.body.style.overflow = '';
+    }
+}
+
+// ✅ UPDATED: Backend connection test
 async function testBackendConnection() {
     try {
         console.log('🔗 Testing backend connection...');
@@ -33,6 +393,7 @@ async function testBackendConnection() {
     }
 }
 
+// ✅ UPDATED: File upload initialization
 function initializeFileUpload() {
     const uploadArea = document.getElementById('uploadArea');
     const fileInput = document.getElementById('fileInput');
@@ -54,6 +415,13 @@ function initializeFileUpload() {
         chooseButton.onclick = (e) => {
             e.preventDefault();
             console.log('📁 Choose file clicked');
+            
+            // Check auth before allowing file selection
+            if (!currentUser) {
+                openModal('authRequiredModal');
+                return;
+            }
+            
             fileInput.click();
         };
     }
@@ -65,7 +433,13 @@ function initializeFileUpload() {
     }
     
     if (demoClause) {
-        demoClause.addEventListener('click', handleDemoAnalysis);
+        demoClause.addEventListener('click', () => {
+            if (!currentUser) {
+                openModal('authRequiredModal');
+            } else {
+                handleDemoAnalysis();
+            }
+        });
     }
 }
 
@@ -124,7 +498,13 @@ function processSelectedFile(file) {
     window.selectedFile = file;
 }
 
+// ✅ UPDATED: Real analysis with authentication
 async function startRealAnalysis() {
+    if (!currentUser) {
+        openModal('authRequiredModal');
+        return;
+    }
+    
     if (!window.selectedFile) {
         showNotification('❌ No file selected', 'error');
         return;
@@ -142,8 +522,18 @@ async function startRealAnalysis() {
         console.log('📤 Sending to backend...');
         const response = await fetch(`${BACKEND_URL}/api/analyze`, {
             method: 'POST',
+            headers: {
+                'Authorization': `Bearer ${authToken}`
+            },
             body: formData
         });
+        
+        if (response.status === 402) {
+            const errorData = await response.json();
+            showSubscriptionLimitModal(errorData);
+            resetUploadArea();
+            return;
+        }
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -153,19 +543,28 @@ async function startRealAnalysis() {
         const result = await response.json();
         console.log('📥 Analysis received:', result);
         
+        // Update user limits
+        if (result.metadata?.user) {
+            currentUser.subscription.contractsAnalyzed = result.metadata.user.contractsAnalyzed;
+            updateAuthUI();
+        }
+        
         displayAnalysisResults(result.analysis, file.name, true);
         
     } catch (error) {
         console.error('❌ Analysis failed:', error);
-        showNotification('⚠️ AI analysis failed. Using demo mode.', 'warning');
-        
-        setTimeout(() => {
-            showDemoResults(file.name);
-        }, 1500);
+        showNotification('⚠️ AI analysis failed. Please try again.', 'error');
+        resetUploadArea();
     }
 }
 
+// ✅ UPDATED: Text analysis with authentication
 async function analyzeText() {
+    if (!currentUser) {
+        openModal('authRequiredModal');
+        return;
+    }
+    
     const textArea = document.getElementById('contractText');
     if (!textArea) return;
     
@@ -182,10 +581,18 @@ async function analyzeText() {
         const response = await fetch(`${BACKEND_URL}/api/analyze`, {
             method: 'POST',
             headers: {
-                'Content-Type': 'application/json'
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${authToken}`
             },
             body: JSON.stringify({ text: text })
         });
+        
+        if (response.status === 402) {
+            const errorData = await response.json();
+            showSubscriptionLimitModal(errorData);
+            resetUploadArea();
+            return;
+        }
         
         if (!response.ok) {
             const errorData = await response.json().catch(() => ({}));
@@ -195,15 +602,57 @@ async function analyzeText() {
         const result = await response.json();
         console.log('📥 Text analysis received:', result);
         
+        // Update user limits
+        if (result.metadata?.user) {
+            currentUser.subscription.contractsAnalyzed = result.metadata.user.contractsAnalyzed;
+            updateAuthUI();
+        }
+        
         displayAnalysisResults(result.analysis, 'pasted contract text', true);
         
     } catch (error) {
         console.error('❌ Text analysis failed:', error);
-        showNotification('⚠️ AI analysis failed. Using demo mode.', 'warning');
-        
-        setTimeout(() => {
-            showDemoResults('pasted contract text');
-        }, 1500);
+        showNotification('⚠️ AI analysis failed. Please try again.', 'error');
+        resetUploadArea();
+    }
+}
+
+// ✅ NEW: Subscription limit modal
+function showSubscriptionLimitModal(errorData) {
+    const modal = document.createElement('div');
+    modal.innerHTML = `
+        <div style="position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); z-index: 2000; display: flex; align-items: center; justify-content: center;" onclick="closeSubscriptionModal()">
+            <div style="background: white; border-radius: 15px; padding: 2rem; max-width: 500px; margin: 1rem; text-align: center;" onclick="event.stopPropagation()">
+                <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+                <h3>Monthly Limit Reached</h3>
+                <p>${errorData.message}</p>
+                <div style="background: #f8f9ff; padding: 1rem; border-radius: 10px; margin: 1rem 0;">
+                    <strong>${errorData.used}/${errorData.currentLimit}</strong> analyses used this month
+                </div>
+                <div style="display: flex; flex-direction: column; gap: 1rem; margin-top: 2rem;">
+                    <button class="cta-button" onclick="handlePayment('business')" style="width: 100%;">
+                        🚀 Upgrade to Business Plan
+                    </button>
+                    <button class="cta-button secondary" onclick="handlePayment('payperuse')" style="width: 100%;">
+                        💳 Buy Single Analysis ($9)
+                    </button>
+                    <button onclick="closeSubscriptionModal()" style="background: none; border: none; color: #666; margin-top: 1rem;">
+                        Maybe Later
+                    </button>
+                </div>
+            </div>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    document.body.style.overflow = 'hidden';
+}
+
+function closeSubscriptionModal() {
+    const modal = document.querySelector('[style*="z-index: 2000"]');
+    if (modal) {
+        modal.remove();
+        document.body.style.overflow = '';
     }
 }
 
@@ -303,8 +752,13 @@ function getRiskLabel(score) {
     return 'Low Risk';
 }
 
-// Demo functionality
+// Demo functionality (requires auth now)
 function handleDemoAnalysis() {
+    if (!currentUser) {
+        openModal('authRequiredModal');
+        return;
+    }
+    
     console.log('🎭 Starting demo analysis...');
     showLoadingState('🎭 Analyzing demo clause...');
     
@@ -333,32 +787,6 @@ function handleDemoAnalysis() {
         
         displayAnalysisResults(demoAnalysis, 'demo termination clause', false);
     }, 2000);
-}
-
-function showDemoResults(fileName) {
-    const demoAnalysis = {
-        summary: `Demo analysis of ${fileName} showing typical contract risks.`,
-        overall_risk_score: 7,
-        overall_confidence: "Medium",
-        clauses: [{
-            clause_type: "General",
-            risk_level: "Medium",
-            risk_score: 70,
-            why_risky_plain: "This is a demo analysis. Upload your contract for real AI-powered review.",
-            market_standard_alternative: "Connect to backend for real analysis and suggestions.",
-            negotiation_script_friendly: "Real negotiation scripts available with AI analysis.",
-            priority: "Important"
-        }],
-        top_actions: [
-            "Try real AI analysis with your contract",
-            "Review payment and termination terms",
-            "Consider professional legal review",
-            "Document any negotiated changes",
-            "Ensure both parties sign final version"
-        ]
-    };
-    
-    displayAnalysisResults(demoAnalysis, fileName, false);
 }
 
 // UI Helper Functions
@@ -397,7 +825,7 @@ function resetUploadArea() {
             
             <div class="paste-area">
                 <textarea id="contractText" placeholder="Paste your contract text here..." rows="6"></textarea>
-                <button class="cta-button" onclick="analyzeText()">Analyze Pasted Text</button>
+                <button class="cta-button" id="analyzeTextBtn">Analyze Pasted Text</button>
             </div>
         </div>
     `;
@@ -415,6 +843,13 @@ function resetFileInput() {
 // Drag and Drop Handlers
 function handleDragOver(e) {
     e.preventDefault();
+    
+    // Check auth before allowing drop
+    if (!currentUser) {
+        openModal('authRequiredModal');
+        return;
+    }
+    
     e.currentTarget.classList.add('dragover');
 }
 
@@ -425,6 +860,12 @@ function handleDragLeave(e) {
 function handleDrop(e) {
     e.preventDefault();
     e.currentTarget.classList.remove('dragover');
+    
+    // Check auth before processing drop
+    if (!currentUser) {
+        openModal('authRequiredModal');
+        return;
+    }
     
     const files = e.dataTransfer.files;
     if (files.length > 0) {
@@ -557,18 +998,27 @@ function showNotification(message, type = 'info') {
     }, 5000);
 }
 
-// Payment System
+// ✅ UPDATED: Payment System - integrated with auth
 function handlePayment(planType) {
     const plans = {
-        free: { name: 'Free Trial', price: 0, description: '1 free contract analysis' },
+        free: { name: 'Free Trial', price: 0, description: '3 contract analyses per month' },
         payperuse: { name: 'Pay Per Use', price: 9, description: 'Single contract analysis' },
         business: { name: 'Business Plan', price: 49, description: 'Up to 20 contracts/month' },
         'expert-review': { name: 'Expert Review', price: 99, description: 'Human lawyer review' }
     };
     
     if (planType === 'free') {
+        if (!currentUser) {
+            openModal('signupModal');
+            return;
+        }
         document.getElementById('analyzer').scrollIntoView({ behavior: 'smooth' });
-        showNotification('🎉 Great! Try our free analysis below.', 'success');
+        showNotification('🎉 You already have a free account! Try analyzing a contract below.', 'success');
+        return;
+    }
+    
+    if (!currentUser) {
+        openModal('authRequiredModal');
         return;
     }
     
@@ -622,15 +1072,29 @@ function processPayment(method, planName, price) {
     
     setTimeout(() => {
         showNotification('✅ Payment successful! Welcome to ' + planName, 'success');
+        
+        // Update user subscription (mock)
+        if (currentUser && planName === 'Business Plan') {
+            currentUser.subscription.type = 'business';
+            currentUser.subscription.monthlyLimit = 20;
+            currentUser.subscription.contractsAnalyzed = 0;
+            updateAuthUI();
+        }
     }, 2000);
 }
 
 // Download Report
 function downloadReport() {
+    if (!currentUser) {
+        openModal('authRequiredModal');
+        return;
+    }
+    
     const content = `
 CONTRACTCOACH ANALYSIS REPORT
 ============================
 Generated: ${new Date().toLocaleString()}
+User: ${currentUser.firstName} ${currentUser.lastName}
 
 RISK ASSESSMENT:
 Overall Score: 8/10 (High Risk)
@@ -667,6 +1131,16 @@ https://contractcoach-backend.onrender.com
     showNotification('📄 Report downloaded! Full PDF available with paid plans.', 'success');
 }
 
-console.log('🚀 ContractCoach Frontend Ready!');
+// Close user dropdown when clicking outside
+document.addEventListener('click', (e) => {
+    const userMenu = document.getElementById('userMenuBtn');
+    const dropdown = document.getElementById('userDropdown');
+    
+    if (userMenu && dropdown && !userMenu.contains(e.target) && !dropdown.contains(e.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+
+console.log('🚀 ContractCoach Frontend with Authentication Ready!');
 console.log('Backend:', BACKEND_URL);
-console.log('Features: File upload, text analysis, payments, contact form');
+console.log('Features: Authentication, file upload, text analysis, payments, contact form');
